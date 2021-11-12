@@ -1,27 +1,38 @@
 ;-------------------------------------------------------------------------------
 ;
-; MoreOverworldTiles.asm
+; More Overworld Tiles
+;
 ; by Ragey <i@ragey.net>
 ; https://github.com/xragey/smw
 ;
-; Implements Lunar Magic's "more levels and overworld events" feature by moving
-; and/or expanding the affected tables. This increases the amount of translevels
-; on the overworld to 256 (up from 96) and the amount of overworld events to 255
-; (up from 128).
+; Proposal implementation for Lunar Magic's "more levels and overworld events"
+; feature by moving and/or expanding the affected level tables. This increases
+; the amount of translevels to 256 (up from 96) and the amount of overworld
+; events to 255 (up from 128).
 ;
-; May change the opening level to either 0x1C5 or 0x0C5.
-;
-; See README.md for more (technical) information.
+; This patch has numerous prerequisites before it can be applied. Refer to the
+; README for additional (and technical) information.
 ;
 ;-------------------------------------------------------------------------------
 
 @asar 1.71
 
-!sa1  = 0
-!fast = 0
-!bank = $00
-!addr = $0000
-!long = $000000
+if read1($00FFD5) == $23
+	if read1($00FD7) > $0C
+		fullsa1rom
+	else
+		sa1rom
+	endif
+	!sa1 = 1
+	!fast = 0
+elseif read1($00FFD5)&$10 == $10
+	!sa1 = 0
+	!fast = 1
+endif
+
+!bank = select(!fast, $80, $00)
+!long = select(!fast, $800000, $000000)
+!addr = select(!sa1, $6000, $0000)
 
 ;-------------------------------------------------------------------------------
 
@@ -41,15 +52,15 @@
 
 ; 32 bytes
 ; Bitwise tracker for in which stages all dragon coins were collected.
-!DragonCoinFlags = $010D|!addr
+!DragonCoinFlags = select(!sa1, $6113, $010D)
 
 ; 32 bytes
 ; Bitwise tracker for in which stages the 1UP check points were triggered.
-!CheckpointFlags = $012D|!addr
+!CheckpointFlags = select(!sa1, $6133, $012D)
 
 ; 32 bytes
 ; Bitwise tracker for in which stages a moon was collected.
-!MoonFlags = $014D|!addr
+!MoonFlags = select(!sa1, $6153, $014D)
 
 ; SRAM array.
 !Sram = select(!sa1, $41C000, $700000)
@@ -332,7 +343,7 @@ org $05D859 : dw ($1F21+!cOffset1F11)|!addr
 org $05D873 : dw ($1F21+!cOffset1F11)|!addr
 
 org $0DB590 : dw ($1F27+!cOffset1F11)|!addr
-org $0DEC97 : dw ($1F27+!cOffset1F11)|!addr
+org $0DEC97 : dl ($1F27+!cOffset1F11)|!addr
 org $00EEAF : dw ($1F27+!cOffset1F11)|!addr
 org $00EEB5 : dw ($1F27+!cOffset1F11)|!addr
 

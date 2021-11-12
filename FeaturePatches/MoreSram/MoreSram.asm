@@ -1,6 +1,7 @@
 ;-------------------------------------------------------------------------------
 ;
-; MoreSram.asm
+; More SRAM
+;
 ; by Ragey <i@ragey.net>
 ; https://github.com/xragey/smw
 ;
@@ -19,11 +20,22 @@
 
 @asar 1.71
 
-!sa1  = 0
-!fast = 0
-!bank = $00
-!addr = $0000
-!long = $000000
+if read1($00FFD5) == $23
+	if read1($00FD7) > $0C
+		fullsa1rom
+	else
+		sa1rom
+	endif
+	!sa1 = 1
+	!fast = 0
+elseif read1($00FFD5)&$10 == $10
+	!sa1 = 0
+	!fast = 1
+endif
+
+!bank = select(!fast, $80, $00)
+!long = select(!fast, $800000, $000000)
+!addr = select(!sa1, $6000, $0000)
 
 ;-------------------------------------------------------------------------------
 

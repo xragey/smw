@@ -21,7 +21,7 @@
 @asar 1.71
 
 if read1($00FFD5) == $23
-	if read1($00FD7) > $0C
+	if read1($00FFD7) > $0C
 		fullsa1rom
 	else
 		sa1rom

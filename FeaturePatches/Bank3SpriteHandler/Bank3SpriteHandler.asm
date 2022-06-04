@@ -67,8 +67,7 @@ Bnk3CallSprMain:
 ; Utilize space *inside* the pointer table, which would be unused, since
 ; sprites $A3-$A7 don't use this routine anyway.
 .HandleLowIds
-	; Football
-	cmp #$1B
+	cmp #$1B			; $1B - Football
 	bne .HandleOtherLowIds
 	jsr $8012
 
